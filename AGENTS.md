@@ -11,3 +11,4 @@ go test ./...
 ## Docs
 
 - Public README in this repo
+- Staff handbook (private): ADR-009 structured logging, observability contracts

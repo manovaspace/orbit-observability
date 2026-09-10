@@ -123,9 +123,6 @@ func Configure(c Config) error {
 	slog.SetDefault(logger)
 	tracer = otel.Tracer(c.ServiceName)
 
-	mu.Lock()
-	// cfg stored locally — no package-level cache needed
-	mu.Unlock()
 	return nil
 }
 

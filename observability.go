@@ -82,10 +82,7 @@ func Configure(c Config) error {
 
 	res, err := resource.Merge(
 		resource.Default(),
-		resource.NewWithAttributes(
-			semconv.SchemaURL,
-			resAttrs...,
-		),
+		resource.NewSchemaless(resAttrs...),
 	)
 	if err != nil {
 		return fmt.Errorf("observability: resource: %w", err)

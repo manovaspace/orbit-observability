@@ -45,7 +45,6 @@ type Config struct {
 
 var (
 	mu       sync.RWMutex
-	cfg      Config
 	logger   *slog.Logger
 	tracer   trace.Tracer
 	tp       *sdktrace.TracerProvider
@@ -125,7 +124,7 @@ func Configure(c Config) error {
 	tracer = otel.Tracer(c.ServiceName)
 
 	mu.Lock()
-	cfg = c
+	// cfg stored locally — no package-level cache needed
 	mu.Unlock()
 	return nil
 }

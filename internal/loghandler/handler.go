@@ -50,8 +50,8 @@ func (h *Handler) Handle(ctx context.Context, r slog.Record) error {
 		"severity_text":   r.Level.String(),
 		"severity_number": severityNumber(r.Level),
 		"body":            r.Message,
-		"resource": h.resource(),
-		"attributes": map[string]any{},
+		"resource":        h.resource(),
+		"attributes":      map[string]any{},
 	}
 
 	if sc := trace.SpanContextFromContext(ctx); sc.IsValid() {

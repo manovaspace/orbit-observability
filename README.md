@@ -51,6 +51,28 @@ observability.WaitForSignal(observability.ShutdownConfig{
 })
 ```
 
+## Layout
+
+```
+config.go, health.go, internal_auth.go,   public facade (unchanged API)
+middleware.go, observability.go, shutdown.go
+internal/domain/                          Config, Exporter, console/OTLP constants
+internal/application/                     health state machine and redaction rule
+internal/infrastructure/config/           environment contract
+internal/infrastructure/logging/          ADR-009 JSON slog handler
+internal/infrastructure/telemetry/        OpenTelemetry and Sentry adapters
+internal/infrastructure/httpapi/          health handlers and otelhttp middleware
+internal/infrastructure/grpc/             internal-token interceptors and gRPC options
+internal/infrastructure/shutdown/         signal drain and telemetry flush
+```
+
+The domain imports no infrastructure package. The application layer holds pure
+state and rules, and the exported facade only wires the adapters, so every
+previous name and signature is unchanged.
+
+The library runs no database, no HTTP server and no event bus; tests need no
+service.
+
 ## Development
 
 ```bash

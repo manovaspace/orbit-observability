@@ -1,27 +1,17 @@
 package observability
 
-import "os"
+import "github.com/manovaspace/orbit-observability/internal/infrastructure/config"
 
 // ConfigFromEnv builds Config from standard Orbit environment variables.
 func ConfigFromEnv(serviceName, serviceVersion string) Config {
-	c := Config{
-		ServiceName:    serviceName,
-		ServiceVersion: serviceVersion,
-		Environment:    envOr("DEPLOYMENT_ENVIRONMENT", "dev"),
-		Exporter:       ExporterConsole,
-		OTLPEndpoint:   envOr("OTEL_EXPORTER_OTLP_ENDPOINT", "localhost:10517"),
-		SentryDSN:      os.Getenv("SENTRY_DSN"),
-		TenantID:       os.Getenv("TENANT_ID"),
+	c := config.FromEnv(serviceName, serviceVersion)
+	return Config{
+		ServiceName:    c.ServiceName,
+		ServiceVersion: c.ServiceVersion,
+		Environment:    c.Environment,
+		TenantID:       c.TenantID,
+		Exporter:       Exporter(c.Exporter),
+		OTLPEndpoint:   c.OTLPEndpoint,
+		SentryDSN:      c.SentryDSN,
 	}
-	if os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT") != "" {
-		c.Exporter = ExporterOTLP
-	}
-	return c
-}
-
-func envOr(key, fallback string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	return fallback
 }

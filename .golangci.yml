@@ -3,9 +3,47 @@ version: "2"
 linters:
   default: none
   enable:
+    - depguard
     - errcheck
     - govet
     - ineffassign
     - staticcheck
     - unused
-
+  settings:
+    depguard:
+      rules:
+        # The domain is pure configuration types. It imports no telemetry SDK,
+        # gRPC, HTTP server or adapter.
+        observability-domain:
+          files:
+            - "**/internal/domain/**"
+          deny:
+            - pkg: "go.opentelemetry.io/otel"
+              desc: "internal/domain declares configuration; the SDK lives in infrastructure"
+            - pkg: "github.com/getsentry/sentry-go"
+              desc: "internal/domain has no Sentry client"
+            - pkg: "google.golang.org/grpc"
+              desc: "internal/domain has no gRPC transport"
+            - pkg: "net/http"
+              desc: "internal/domain has no HTTP server"
+            - pkg: "os/exec"
+              desc: "internal/domain is pure and runs no process"
+            - pkg: "github.com/manovaspace/orbit-observability/internal/infrastructure"
+              desc: "internal/domain must not depend on an adapter"
+        # The application layer holds health and redaction rules only.
+        observability-application:
+          files:
+            - "**/internal/application/**"
+          deny:
+            - pkg: "go.opentelemetry.io/otel"
+              desc: "internal/application holds pure state and import rules"
+            - pkg: "github.com/getsentry/sentry-go"
+              desc: "internal/application has no Sentry client"
+            - pkg: "google.golang.org/grpc"
+              desc: "internal/application has no gRPC transport"
+            - pkg: "net/http"
+              desc: "internal/application has no HTTP server"
+            - pkg: "os/exec"
+              desc: "internal/application runs no process"
+            - pkg: "github.com/manovaspace/orbit-observability/internal/infrastructure"
+              desc: "internal/application must not depend on an adapter"

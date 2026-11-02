@@ -1,4 +1,4 @@
-package loghandler
+package logging
 
 import (
 	"context"

@@ -9,12 +9,12 @@ import (
 	"testing"
 
 	observability "github.com/manovaspace/orbit-observability"
-	"github.com/manovaspace/orbit-observability/internal/loghandler"
+	"github.com/manovaspace/orbit-observability/internal/infrastructure/logging"
 )
 
 func TestADR009LogEnvelope(t *testing.T) {
 	var buf bytes.Buffer
-	h := loghandler.New(loghandler.Options{
+	h := logging.New(logging.Options{
 		ServiceName:    "test",
 		ServiceVersion: "0.1.0",
 		Environment:    "dev",
@@ -74,7 +74,7 @@ func TestConfigFromEnvOTLP(t *testing.T) {
 
 func TestTenantIDInLogResource(t *testing.T) {
 	var buf bytes.Buffer
-	h := loghandler.New(loghandler.Options{
+	h := logging.New(logging.Options{
 		ServiceName:    "test",
 		ServiceVersion: "0.1.0",
 		Environment:    "dev",

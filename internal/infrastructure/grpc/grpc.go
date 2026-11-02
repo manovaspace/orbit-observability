@@ -10,6 +10,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+
+	"github.com/manovaspace/orbit-observability/internal/infrastructure/telemetry"
 )
 
 const internalTokenMetadataKey = "x-orbit-internal-token"
@@ -51,7 +53,19 @@ func InternalAuthDialOption() grpc.DialOption {
 func ServerOptions() []grpc.ServerOption {
 	return []grpc.ServerOption{
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
-		grpc.ChainUnaryInterceptor(InternalAuthUnaryServerInterceptor()),
+		grpc.ChainUnaryInterceptor(
+			contextAttrsUnaryServerInterceptor(),
+			InternalAuthUnaryServerInterceptor(),
+		),
+	}
+}
+
+// contextAttrsUnaryServerInterceptor copies registered context attributes onto
+// the RPC span before the handler runs.
+func contextAttrsUnaryServerInterceptor() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+		telemetry.AnnotateSpan(ctx)
+		return handler(ctx, req)
 	}
 }
 

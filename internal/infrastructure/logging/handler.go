@@ -67,6 +67,9 @@ func (h *Handler) Handle(ctx context.Context, r slog.Record) error {
 	for _, a := range h.attrs {
 		flattenAttr(a, attrs)
 	}
+	for _, a := range ContextAttrs(ctx) {
+		flattenAttr(a, attrs)
+	}
 	if cid, ok := attrs["correlation_id"]; ok {
 		entry["correlation_id"] = cid
 		delete(attrs, "correlation_id")

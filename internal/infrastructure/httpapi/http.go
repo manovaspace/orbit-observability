@@ -9,6 +9,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
 	"github.com/manovaspace/orbit-observability/internal/application"
+	"github.com/manovaspace/orbit-observability/internal/infrastructure/telemetry"
 )
 
 // HealthHandler serves GET /healthz style liveness.
@@ -35,7 +36,11 @@ func ReadinessHandler(state *application.State) http.Handler {
 	})
 }
 
-// Middleware wraps an http.Handler with W3C trace propagation.
+// Middleware wraps an http.Handler with W3C trace propagation and copies the
+// registered context attributes onto the request span.
 func Middleware(next http.Handler) http.Handler {
-	return otelhttp.NewHandler(next, "http")
+	return otelhttp.NewHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		telemetry.AnnotateSpan(r.Context())
+		next.ServeHTTP(w, r)
+	}), "http")
 }

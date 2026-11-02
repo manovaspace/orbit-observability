@@ -51,6 +51,40 @@ observability.WaitForSignal(observability.ShutdownConfig{
 })
 ```
 
+## Request-scoped attributes
+
+Services attach request-scoped values such as `org_id` and `subject` to every log
+line and span without teaching this library about tenants. Registrations are
+applied in order, a panic in one is contained, and all calls are safe for
+concurrent use.
+
+```go
+type orgKey struct{}
+
+func orgAttrs(ctx context.Context) []slog.Attr {
+    org, ok := ctx.Value(orgKey{}).(string)
+    if !ok {
+        return nil
+    }
+    return []slog.Attr{slog.String("org_id", org)}
+}
+
+func main() {
+    observability.RegisterContextAttrs(orgAttrs)
+
+    handler := observability.HTTPMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        ctx := context.WithValue(r.Context(), orgKey{}, orgFromRequest(r))
+        observability.AnnotateSpan(ctx) // auth has run: add org_id to the span now
+        observability.Logger().InfoContext(ctx, "request handled")
+    }))
+    _ = handler
+}
+```
+
+The HTTP and gRPC middleware apply the registered attributes to the span at
+request start. Because auth usually runs after the tracing middleware, call
+`observability.AnnotateSpan(ctx)` once the tenant values exist to re-apply them.
+
 ## Layout
 
 ```

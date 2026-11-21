@@ -5,6 +5,8 @@ read_with:
   - handbook/docs/orbit/decisions/010-observability-stack.md
 ---
 
+> **Moved.** This module is now the `observability` package of [orbit-kit](https://github.com/manovaspace/orbit-kit) (`github.com/manovaspace/orbit-kit/observability`). This repository is archived and gets no more releases. To migrate, replace the import path `github.com/manovaspace/orbit-observability` with `github.com/manovaspace/orbit-kit/observability` and run `go get github.com/manovaspace/orbit-kit@latest && go mod tidy`.
+
 # orbit-observability
 
 Structured logging, OpenTelemetry, health checks, and Sentry hooks for Go services. Status: `beta`. MIT — `github.com/manovaspace/orbit-observability`.
